@@ -1,13 +1,13 @@
 <template>
-    <div class="settings-container"
+    <div class="input-container"
         :label="labelValue"
-        :type="type"
-        :value="defaultValue">
+        :type="type">
         <div class="input-with-label">
             <label for="function_input">{{ labelValue }}</label>
             <input id="function_input"
             :type="type"
-            :value="defaultValue">
+            :value="currentValue[valueKey]"
+            @change="parametersChanged">
         </div>
     </div>
 </template>
@@ -16,23 +16,23 @@
 
 export default {
     name: 'GraphSettings',
-    components: {
-    },
     props: {
         labelValue: String,
         type: String,
-        defaultValue: [String, Number]
+        currentValue: Object,
+        valueKey: String
     },
-    data() {
-        return {}
+    methods: {
+        parametersChanged(event) {
+            this.$emit('parametersChanged', this.valueKey, event.target.value);
+        }
     }
 }
 
 </script>
 
 <style scoped>
-.settings-container {
-    padding: 0.1em 0.5em;
+.input-container {
     margin-bottom: 0.3em;
 }
 
@@ -47,6 +47,9 @@ export default {
     padding-left: 0.4em;
     border-radius: 0.2em 0 0 0.2em;
     border-right: none;
+    min-width: 2.25em;
+    text-align: left;
+    padding-right: 0;
 }
 .input-with-label input {
     font-size: 1em;

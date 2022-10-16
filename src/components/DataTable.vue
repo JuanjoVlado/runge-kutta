@@ -1,5 +1,5 @@
 <template>
-    <div class="container">
+    <div class="table-container">
         <table>
             <thead>
                 <tr>
@@ -12,11 +12,17 @@
                 </tr>
             </thead>
             <tbody>
-                <tr v-for="row in tableData" :key="row[0]">
-                    <td v-for="val in row" :key="val">{{val}}</td>
+                <tr v-for="row in tableData" :key="row.step">
+                    <td>{{row.x | roundVal}}</td>
+                    <td>{{row.k1 | roundVal}}</td>
+                    <td>{{row.k2 | roundVal}}</td>
+                    <td>{{row.k3 | roundVal}}</td>
+                    <td>{{row.k4 | roundVal}}</td>
+                    <td>{{row.y | roundVal}}</td>
                 </tr>
             </tbody>
         </table>
+        <div class="empty"></div>
     </div>
 </template>
 
@@ -25,25 +31,30 @@
 export default {
     name: 'DataTable',
     props: {
-        tableData: Array
+        tableData: [Object, Array]
     },
-    data() {
-        return {}
+    filters: {
+        roundVal(val) {
+            let roundFactor = 1000000;
+            return Math.round(val*roundFactor, 6)/roundFactor;
+        }
     }
 }
 
 </script>
 
 <style scoped>
-.container {
+.table-container {
     overflow: scroll;
+    display: flex;
+    padding: 0.75em;
 }
 table {
     width: 100%;
     border-collapse: collapse;
 }
-
 th, td {
     border: 1px solid #8f8f8f;
+    padding: 0.2em 0.4em;
 }
 </style>

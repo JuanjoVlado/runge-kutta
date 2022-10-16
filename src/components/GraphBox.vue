@@ -1,4 +1,5 @@
 <template>
+  <div class="chart-container">
     <LineChartGenerator
       :chart-options="chartOptions"
       :chart-data="chartData"
@@ -10,6 +11,8 @@
       :width="width"
       :height="height"
     />
+    <button @click="clearTable">Limpiar datos</button>
+  </div>
   </template>
   
   <script>
@@ -42,6 +45,8 @@
       LineChartGenerator
     },
     props: {
+      tableData: [Array, Object],
+      chartTitle: String,
       chartId: {
         type: String,
         default: 'line-chart'
@@ -74,24 +79,12 @@
     data() {
       return {
         chartData: {
-          labels: [
-            '0.0',
-            '0.1',
-            '0.2',
-            '0.3',
-            '0.4',
-            '0.5',
-            '0.6',
-            '0.7',
-            '0.8',
-            '0.9',
-            '1.0'
-          ],
+          labels: ['0.0','0.1','0.2','0.3','0.4','0.5','0.6','0.7','0.8','0.9','1.0'],
           datasets: [
             {
-              label: 'fn(x)',
+              label: 'Test 01',
               backgroundColor: '#f87979',
-              data: [40, 39, 10, 40, 39, 80, 40]
+              data: [0.1, 0.2, 0.3, 0.4, 0.5, 0.5, 0.6]
             }
           ]
         },
@@ -102,43 +95,40 @@
       }
     },
     methods: {
-        test_function_01(x, y) {
-            return (-2*y)+(Math.pow(x, 3)*Math.exp(-2*x));
-        },
-        ruge_kutta(f, h, xi, yi) {
-            let k1 = f(xi, yi);
-            let k2 = f(xi + (h/2), yi + (h*k1)/2);
-            let k3 = f(xi + (h/2), yi + (h*k2)/2);
-            let k4 = f(xi + h, yi + (h*k3));
-            
-            let y = (yi + (h/6)*(k1 + (2*k2) + (2*k3) + k4));
-            
-            return {k1, k2, k3, k4, y};
-        },
-        getValues(fn, h, xi, yi) {
-            let steps = [];
-            let step = 0;
-
-            while(step <= 1) {
-                let res = this.ruge_kutta(fn, h, xi, yi);
-                yi = res.y;
-                res.x = Math.round(xi*100, 2)/100;
-                steps.push(res)
-                xi += h;
-                step += h;
-            }
-            
-            return steps;
-        }
+      clearTable() {
+        this.chartData.datasets = [];
+        this.$emit('chartCleared');
+      }
     },
-    mounted() {
-        let values = this.getValues(this.test_function_01, 0.1, 0, 1);
-        let nvals = values.map(n => n.y);
-        this.chartData.datasets[0].data = nvals;
+    watch: {
+      tableData(newVal) {
+        if(newVal.length > 0) {
+          let labels = [];
+          let data = [];
+      
+          for(let i in newVal) {
+            labels.push(newVal[i].x);
+            data.push(newVal[i].y);
+          }
+      
+          this.chartData.labels = labels;
+          this.chartData.datasets.push({
+            label: this.$props.chartTitle,
+            backgroundColor: '#f87979',
+            data
+          });
+        }
+      }
     }
   }
-
-
-
 </script>
+
+<style>
+.chart-container {
+  padding: 0.75em; 
+}
+.chart-container button {
+  margin-top: 1em;
+}
+</style>
   
