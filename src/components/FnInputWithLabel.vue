@@ -30,21 +30,30 @@ export default {
     watch: {
         fnValue() {
             this.fnValue = this.fnValue.toLocaleLowerCase();
-            this.fnValue = this.fnValue.replace(/([xy])([xy])/g, '$1*$2');
-            this.fnValue = this.fnValue.replace(/(\d+)([xy])/g, '$1*$2');
+            this.fnValue = this.fnValue.replace(/pi/ig, 'PI');
+            this.fnValue = this.fnValue.replace(/([xyI])([Pxy])/g, '$1*$2');
+            this.fnValue = this.fnValue.replace(/(\d+|i)([pxy])/g, '$1*$2');
             
             if(this.fnValue.endsWith('^') ||
                this.fnValue.endsWith("sqrt") ||
                this.fnValue.endsWith("ln") ||
                this.fnValue.endsWith("sin") ||
+               this.fnValue.endsWith("sen") ||
                this.fnValue.endsWith("cos") ||
-               this.fnValue.endsWith("tan")) {
+               this.fnValue.endsWith("tan")
+            ) {
                 this.fnValue += "(";
+            }
+
+            if(!this.fnValue.endsWith('se') && this.fnValue.endsWith('e')) {
+                this.fnValue += '^(';
             }
 
             if(this.fnValue.endsWith("**")) {
                 this.fnValue = this.fnValue.replace('**', '^(');
             }
+
+            this.$emit('parametersChanged', 'fn', this.fnValue);
         },
         currentValue() {
             if(this.currentValue && this.currentValue.fn.length > 0) {
