@@ -121,13 +121,15 @@ export default {
   },
   methods: {
     updateAproxSettings(k, v) {
-      this.aproxSettings[k] = v;
+      let numval = Number.parseFloat(v*100)/100;
+      this.aproxSettings[k] = isNaN(numval) ? v : numval;
       if(k == 'h') {
-        this.fnPlotSettings[k] = v;  
+        this.fnPlotSettings[k] = isNaN(numval) ? v : numval;
       }
     },
     updateFnPlotSettings(k, v) {
-      this.fnPlotSettings[k] = v;
+      let numval = Number.parseFloat(v*100)/100;
+      this.fnPlotSettings[k] = isNaN(numval) ? v : numval;
     },
     runge_kutta(fn, h, xi, yi) {
       let k1 = fn.call(this, xi, yi);
@@ -139,23 +141,24 @@ export default {
       return {k1, k2, k3, k4, y};
     },
     getValues(fn, h, xi, yi) {
-        let steps = [];
-        let step = 0;
-        h = Math.round(Number.parseFloat(h)*100,2)/100;
-        xi = Math.round(Number.parseFloat(xi)*100, 2)/100;
-        yi = Number.parseFloat(yi);
+      let steps = [];
+      let step = xi;
+      let limit = xi+1;
+      h = Math.round(Number.parseFloat(h)*100,2)/100;
+      xi = Math.round(Number.parseFloat(xi)*100, 2)/100;
+      yi = Number.parseFloat(yi);
 
-        while(step <= 2) {
-          let res = this.runge_kutta(fn, h, xi, yi);
-          yi = res.y;
-          res.x = Math.round(xi*100, 2)/100;
-          res.key = step;
-          steps.push(res)
-          xi += Math.round(h*100,2)/100;
-          step += h;
-        }
+      while(step <= limit) {
+        let res = this.runge_kutta(fn, h, xi, yi);
+        yi = res.y;
+        res.x = Math.round(xi*100, 2)/100;
+        res.key = step;
+        steps.push(res)
+        xi += Math.round(h*100,2)/100;
+        step += h;
+      }
 
-        return steps;
+      return steps;
     },
     operateFunctions(s) {
       let matches = s.matchAll(/(?<fn>sqrt|log|sin|cos|tan|exp)\((?<arg>[^()]+)\)/g);
@@ -272,14 +275,14 @@ export default {
       return data;
     },
     parseExpression(toAproximate) {
-      console.log("parseExpression:", toAproximate)
-      let expression = toAproximate ? this.aproxSettings.fn : this.plotSolution.fn;
+      let expression = toAproximate ? this.aproxSettings.fn : this.fnPlotSettings.fn;
       let fn = this.functionBuilder(expression);
 
       if(toAproximate) {
-        console.log("Aproximate....");
+        let s = this.aproxSettings;
+        this.tableData = this.getValues(fn, s.h, s.x, s.y);
       } else {
-        this.tableData = this.plotSolution(fn, this.plotSolution.h, this.plotSolution.x);
+        this.tableData = this.plotSolution(fn, this.fnPlotSettings.h, this.fnPlotSettings.x);
       }
     },
     updateTableData() {
