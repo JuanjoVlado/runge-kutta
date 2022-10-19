@@ -1,10 +1,10 @@
 <template>
-    <div class="input-container" :label="labelValue">
+    <div class="input-container">
         <div class="input-with-label">
             <label for="function_input">{{ labelValue }}</label>
             <input id="function_input" type="text"
-            v-model="fnValue"
-            @change="parametersChanged">
+            :value="content"
+            @input="parametersChanged">
         </div>
     </div>
 </template>
@@ -15,45 +15,47 @@ export default {
     name: 'GraphSettings',
     data() {
         return {
-            fnValue: ""
+            content: ""
         }
     },
     props: {
         labelValue: String,
-        currentValue: Object
+        keyValue: String
     },
     methods: {
         parametersChanged(event) {
-            this.$emit('parametersChanged', 'fn', event.target.value);
+            this.$emit('input', this.keyValue, event.target.value);
         }
     },
     watch: {
-        fnValue() {
-            this.fnValue = this.fnValue.toLocaleLowerCase();
-            this.fnValue = this.fnValue.replace(/pi/ig, 'PI');
-            this.fnValue = this.fnValue.replace(/([xyI])([Pxy])/g, '$1*$2');
-            this.fnValue = this.fnValue.replace(/(\d+|i)([pxy])/g, '$1*$2');
+        content(newVal) {
+            let v = newVal;
+            v = v.toLocaleLowerCase();
+            v = v.replace(/pi/ig, 'PI');
+            v = v.replace(/([xyI])([Pxy])/g, '$1*$2');
+            v = v.replace(/(\d+|i)([pxy])/g, '$1*$2');
             
-            if(this.fnValue.endsWith('^') ||
-               this.fnValue.endsWith("sqrt") ||
-               this.fnValue.endsWith("ln") ||
-               this.fnValue.endsWith("sin") ||
-               this.fnValue.endsWith("sen") ||
-               this.fnValue.endsWith("cos") ||
-               this.fnValue.endsWith("tan")
+            if(v.endsWith('^') ||
+               v.endsWith("sqrt") ||
+               v.endsWith("ln") ||
+               v.endsWith("sin") ||
+               v.endsWith("sen") ||
+               v.endsWith("cos") ||
+               v.endsWith("tan")
             ) {
-                this.fnValue += "(";
+                v += "(";
             }
 
-            if(!this.fnValue.endsWith('se') && this.fnValue.endsWith('e')) {
-                this.fnValue += '^(';
+            if(!v.endsWith('se') && v.endsWith('e')) {
+                v += '^(';
             }
 
-            if(this.fnValue.endsWith("**")) {
-                this.fnValue = this.fnValue.replace('**', '^(');
+            if(v.endsWith("**")) {
+                v = v.replace('**', '^(');
             }
 
-            this.$emit('parametersChanged', 'fn', this.fnValue);
+            this.content = v;
+            this.$emit('parametersChanged', 'fn', v);
         },
         currentValue() {
             if(this.currentValue && this.currentValue.fn.length > 0) {

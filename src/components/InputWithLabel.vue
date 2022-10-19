@@ -1,13 +1,10 @@
 <template>
-    <div class="input-container"
-        :label="labelValue"
-        :type="type">
+    <div class="input-container">
         <div class="input-with-label">
             <label for="function_input">{{ labelValue }}</label>
-            <input id="function_input"
-            :type="type"
-            :value="currentValue[valueKey]"
-            @change="parametersChanged">
+            <input id="function_input" type="number"
+            :value="content"
+            @input="parametersChanged">
         </div>
     </div>
 </template>
@@ -19,12 +16,16 @@ export default {
     props: {
         labelValue: String,
         type: String,
-        currentValue: Object,
-        valueKey: String
+        keyValue: String
+    },
+    data() {
+        return {
+            content: ""
+        }
     },
     methods: {
         parametersChanged(event) {
-            this.$emit('parametersChanged', this.valueKey, event.target.value);
+            this.$emit('input', this.keyValue, event.target.value);
         }
     }
 }

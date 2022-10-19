@@ -90,7 +90,8 @@
         },
         chartOptions: {
           responsive: true,
-          maintainAspectRatio: false
+          maintainAspectRatio: true,
+          aspectRatio: 1|1
         }
       }
     },
@@ -119,6 +120,9 @@
           });
         }
       }
+    },
+    mounted() {
+      this.chartData.datasets = [];
     }
   }
 </script>

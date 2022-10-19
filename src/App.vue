@@ -1,12 +1,39 @@
 <template>
   <div id="app">
-    <h1>Método de Runge-Kutta</h1>
-    <graph-box id="chart_display" :table-data="tableData" @chartCleared="tableData={}" :chart-title="currentValues.fn"/>
-    <graph-settings id="graph_settings"
-      :current-values="currentValues"
-      @exampleChanged="changeExample"
-      @parametersChanged="updateTableData"/>
-    <data-table id="data_table" :table-data="tableData"/>
+    <div class="work-area">  
+      <h1>Método de Runge-Kutta</h1>
+      <graph-box id="chart_display" :table-data="tableData" @chartCleared="tableData={}"/>
+      
+      <div class="settings-container">
+        <div class="nav-bar">
+          <div class="nav-tag" @click="activeTab=1" :class="{active:activeTab==1}">Aproximar</div>
+          <div class="nav-tag" @click="activeTab=2" :class="{active:activeTab==2}">Graficar</div>
+        </div>
+        <div class="tabs-container">
+          <div class="tab" v-if="activeTab==1">
+            <fn-input-with-label :label-value="`y' =`" :key-value="'fn'" :value="aproxSettings.fn" @input="updateAproxSettings"/>
+            <input-with-label :label-value="'h ='" :key-value="'h'" :value="aproxSettings.h" @input="updateAproxSettings"/>
+            <input-with-label :label-value="'xi ='" :key-value="'x'" :value="aproxSettings.x" @input="updateAproxSettings"/>
+            <input-with-label :label-value="'yi ='" :key-value="'y'" :value="aproxSettings.y" @input="updateAproxSettings"/>
+            <select name="examples" id="examples_select">
+              <optgroup label="Examples">
+                <option value="example_01">Ejemplo 1</option>
+                <option value="example_02">Ejemplo 2</option>
+                <option value="example_03">Ejemplo 3</option>
+                <option value="example_04">Ejemplo 4</option>
+              </optgroup>
+            </select>
+            <button>Aproximar</button>
+          </div>
+          <div class="tab" v-if="activeTab==2">
+            <fn-input-with-label :label-value="`y =`"/>
+            <input-with-label :label-value="'x ='" :key-value="'x'" :value="fnPlotSettings.x" @input="updateFnPlotSettings"/>
+          </div>
+        </div>
+      </div>
+      
+      <data-table id="data_table" :table-data="tableData"/>
+    </div>
 
     <app-footer id="app_footer"/>
   </div>
@@ -14,22 +41,36 @@
 
 <script>
 import GraphBox from './components/GraphBox.vue';
-import GraphSettings from './components/GraphSettings.vue';
 import DataTable from './components/DataTable.vue';
 import AppFooter from './components/AppFooter.vue';
+import InputWithLabel from './components/InputWithLabel.vue';
+import FnInputWithLabel from './components/FnInputWithLabel.vue';
 
 export default {
   name: 'App',
   components: {
     GraphBox,
-    GraphSettings,
     DataTable,
-    AppFooter
+    AppFooter,
+    FnInputWithLabel,
+    InputWithLabel
   },
   data() {
     return {
       roundFactor: 1000000,
       decimalPoints: 6,
+      activeTab: 1,
+      aproxSettings: {
+        'fn': '2*x*y',
+        'h': 0.1,
+        'x': 1,
+        'y': 2
+      },
+      fnPlotSettings: {
+        'fn': '2*x*y',
+        'h': 0.1,
+        'x': 1,
+      },
       mathExpression: "",
       parsedExpression: "",
       tableData: {},
@@ -42,6 +83,15 @@ export default {
     }
   },
   methods: {
+    updateAproxSettings(k, v) {
+      this.aproxSettings[k] = v;
+      if(k==='h') {
+        this.fnPlotSettings[k] = v;  
+      }
+    },
+    updateFnPlotSettings(k, v) {
+      this.fnPlotSettings[k] = v;
+    },
     changeExample(newValue) {
       switch (newValue) {
         case 'example_01':
@@ -70,7 +120,7 @@ export default {
           break;
       }
     },
-    ruge_kutta(fn, h, xi, yi) {
+    runge_kutta(fn, h, xi, yi) {
       let k1 = fn.call(this, xi, yi);
       let k2 = fn.call(this, xi + (h/2), yi + (h*k1)/2);
       let k3 = fn.call(this, xi + (h/2), yi + (h*k2)/2);
@@ -87,7 +137,7 @@ export default {
         yi = Number.parseFloat(yi);
 
         while(step <= 2) {
-          let res = this.ruge_kutta(fn, h, xi, yi);
+          let res = this.runge_kutta(fn, h, xi, yi);
           yi = res.y;
           res.x = Math.round(xi*100, 2)/100;
           res.key = step;
@@ -212,16 +262,8 @@ export default {
       }
       return data;
     },
-    updateTableData(newValues, toAprox) {
-      let vals;
-      this.$data.currentValues = newValues;
-      if(toAprox) {
-        vals = this.getValues(this.functionBuilder.call(this, newValues.fn), newValues.h, newValues.x, newValues.y);
-      } else {
-        // GRAFICAR
-        vals = this.plotExpression(this.functionBuilder.call(this, this.currentValues.fn), this.currentValues.h);
-      }
-      this.$data.tableData = vals;
+    updateTableData() {
+
     }
   }
 }
@@ -244,6 +286,43 @@ h1 {
   font-size: 1.25em;
 }
 
+#app {
+  font-family: Avenir, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-align: center;
+  color: #2c3e50;
+  margin-top: 0;
+  max-width: 50em;
+}
+
+.work-area {
+  padding: 0.3em;
+}
+
+.nav-bar {
+  display: flex;
+  flex-direction: row;
+}
+.nav-bar .nav-tag {
+  border: 1px solid #8f8f9d;
+  border-bottom: none;
+  border-left: none;
+  font-size: 0.8em;
+  padding: 0.4em;
+}
+.nav-bar .nav-tag:first-child {
+  border-left: 1px solid #8f8f9d;;
+}
+.nav-tag.active {
+  background-color: #05668D;
+  color: white;
+}
+
+.tabs-container {
+  border: 1px solid #8f8f9d;
+}
+
 input, select {
   border: none;
   padding: 0;
@@ -259,16 +338,11 @@ button {
   border: 1px solid #8f8f9d;
   color: white;
 }
-
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 0;
-  max-width: 50em;
+button:hover {
+  cursor: pointer;
 }
+
+
 
 @media screen and (min-width: 768px) {
   h1 {
