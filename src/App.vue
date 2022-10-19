@@ -126,6 +126,8 @@ export default {
     }
   },
   methods: {
+    // These methods handle the data when the user interacts with the app,
+    // these have nothing to do with the proyect's objectives.
     updateXLimit(k, v) {
       this.xLimit = Number.parseInt(v);
     },
@@ -146,6 +148,16 @@ export default {
         this.xLimit = numval+1;
       }
     },
+    /**
+     * Implementation of the Runge-Kutta method.
+     * @param {function}  fn  Differencial equation to approximate.
+     * @param {Number}    h   Size of the increment in x on each iteration.
+     * @param {Number}    xi  Initial value for x.
+     * @param {Number}    yi  Initial value for y. 
+     * 
+     * @returns {Object} The results of each step of the algorith for specific values of x and y.
+     * The result object includes {k1, k2, k3, k4, y}.
+     */
     runge_kutta(fn, h, xi, yi) {
       let k1 = fn.call(this, xi, yi);
       let k2 = fn.call(this, xi + (h/2), yi + (h*k1)/2);
@@ -155,6 +167,17 @@ export default {
 
       return {k1, k2, k3, k4, y};
     },
+    /**
+     * This method executes the Runge-Kutta method for each value of x beginin with
+     * xi up to a limit deffinden by the user. 
+     * @param {function}  fn  Differencial equation to approximate.
+     * @param {Number}    h   Size of the increment in x on each iteration.
+     * @param {Number}    xi  Initial value for x.
+     * @param {Number}    yi  Initial value for y.
+     * 
+     * @returns {Array} List of objects that represent the result of each step of
+     * the Runge-Kutta algorithm.
+     */
     getValues(fn, h, xi, yi) {
       let steps = [];
       let step = xi;
@@ -175,6 +198,19 @@ export default {
 
       return steps;
     },
+    /**
+     * Evaluates an string that represents a mathematical exression, captures each instance
+     * of known mathematical functions and returns the result of operate them.
+     * This method can operate square roots, natural logarithm, cos, sin, tan, and euler's constant
+     * powered to a value.
+     * 
+     * i.e.: sqrt(5) is replaced by '5'.
+     * 
+     * @param {String} s The mathematical expression to evaluate.
+     * 
+     * @returns {String} A new string that represent the mathematical expression after replacing the
+     * functions by the result of operating them.
+     */
     operateFunctions(s) {
       let matches = s.matchAll(/(?<fn>sqrt|log|sin|cos|tan|exp)\((?<arg>[^()]+)\)/g);
       
@@ -190,6 +226,18 @@ export default {
       
       return s;
     },
+    /**
+     * Evaluates an string that represents a mathematical exression, captures each instance
+     * of a number powered to a number and returns a new string replacing said expression by
+     * the result of operating it.
+     * 
+     * i.e.: 2^5 is replaced by 32.
+     *  
+     * @param {String} The mathematical expression to evaluate.
+     * 
+     * @returns {String} A new string that represent the mathematical expression after replacing the
+     * powers by the result of operating them.
+     */
     operatePowers(s) {
       let matches = s.match(/(-?[\d.]+)\^(-?[\d.]+)/g);
       
@@ -202,6 +250,18 @@ export default {
       }
       return s.toString();
     },
+    /**
+     * Evaluates an string that represents a mathematical exression, captures each instance
+     * of a product or division between two numbers and returns a new string replacing said
+     * expression by the result of operating it.
+     * 
+     * @param {String} s The mathematical expression to evaluate.
+     * @param {Boolean} product Whether or not to operate products. If set to false,
+     * divisions will be operated instead of products.
+     * 
+     * @returns {String} A new string that represent the mathematical expression after operating
+     * products or divisions.
+     */
     operateProductsAndQuotients(s, product) {
       let pattern = product ? /(-?[\d.]+)\*(-?[\d.]+)/ : /(-?[\d.]+)\/([-?\d.]+)/;
       let matches = s.match(pattern);
@@ -214,6 +274,16 @@ export default {
       }
       return s;
     },
+    /**
+     * Recursively captures and operates the expressions inside parentheses, from the inner
+     * groups and to the outside, replacing the original expression by the result of operating
+     * what's inside parentheses. 
+     * 
+     * @param {String} s The mathematical expression to evaluate.
+     * 
+     * @returns {String} A new string that represent the mathematical expression after operating
+     * what's inside all parentheses.
+     */
     operateParentheses(s) {
       let matches = s.match(/\([^()]+\)/);
       if(!matches) return s;
@@ -229,6 +299,14 @@ export default {
       
       return s;
     },
+    /**
+     * Captures and operates additions and subtractions from a mathematical expression.
+     * 
+     * @param {String} s The mathematical expression to evaluate.
+     * 
+     * @returns {String} A new string that represent the mathematical expression after operating
+     * additions and subtractions.
+     */
     operateAdditionsSubtractions(s) {
       let match = s.match(/([+-]?[\d.]+)/g);
       if(!match) return s;
@@ -240,6 +318,13 @@ export default {
       
       return res;
     },
+    /**
+     * Evaluates a mathematical expression and returns the result.
+     * 
+     * @param {String} exp The mathematical expression to evaluate.
+     * 
+     * @returns {String} The result of operating the mathematical expression.
+     */
     operateExpression(exp) {
       exp = this.operateFunctions(exp);
       exp = this.operateParentheses(exp);
@@ -250,8 +335,15 @@ export default {
       exp = this.operateAdditionsSubtractions(exp);
       return exp;
     },
-    // Transforma la expresión matemática en una función de javascript
-    // y retorna dicha función para ser usada en otra parte.
+    /**
+     * Transforms an string represinting a valid matematical expression and returns
+     * a function that will evaluate the functions for a pair of (x, y) values.
+     * 
+     * @param {String} mathExpression The mathematical expression to evaluate.
+     * 
+     * @returns {function} Actual javascript function that evaluates the mathExpression for
+     * a pair of (x, y) values.
+     */
     functionBuilder(mathExpression) {
       this.mathExpression = mathExpression;
       
@@ -273,6 +365,18 @@ export default {
 
       return fn;
     },
+    /**
+     * Evaluates a function from x to a limit deffined by the user adding to x an amount
+     * equal to h for each iteration.
+     * 
+     * @param {function} fn Function to plot.
+     * @param {Number} h Size of each step betwen plot values.
+     * @param {Number} x Initial value for x.
+     * 
+     * @returns {Array} List of objects that represent the result of evaluating the function
+     * for all points. The format of the input allow using the same function to plot the aproximation
+     * generated by the Runge-Kutta method.
+     */
     plotSolution(fn, h, x) {
       let data = []
       for(let i = x; i <= this.xLimit; i+=h) {
@@ -288,6 +392,14 @@ export default {
       }
       return data;
     },
+    /**
+     * Starts the process of building a function from the mathematical expression
+     * provided by the user, evaluate for (x, y) values and plot the results.
+     * 
+     * @param {boolean} toAproximate Indicates if the function to plot is
+     * the aproximation of the differencial equation or it's soltion provided
+     * by the user.
+     */
     parseExpression(toAproximate) {
       let expression = toAproximate ? this.aproxSettings.fn : this.fnPlotSettings.fn;
       let fn = this.functionBuilder(expression);
@@ -306,6 +418,7 @@ export default {
       }
     }
   },
+  // Not related to the proyect's objectives.
   watch: {
     currentExample(newVal) {
       let newObj = this.examples[newVal].edo;
