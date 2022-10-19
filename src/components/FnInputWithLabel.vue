@@ -34,17 +34,18 @@ export default {
             newVal = newVal.replace(/pi/ig, 'PI');
             newVal = newVal.replace(/([xyI])([Pxy])/g, '$1*$2');
             newVal = newVal.replace(/(\d+|i)([pxy])/g, '$1*$2');
+            newVal = newVal.replace(/sen/g, 'sin');
             
             if(newVal.endsWith('^') ||
                newVal.endsWith("sqrt") ||
                newVal.endsWith("ln") ||
                newVal.endsWith("sin") ||
-               newVal.endsWith("sen") ||
                newVal.endsWith("cos") ||
                newVal.endsWith("tan")
             ) {
                 newVal += "(";
             }
+            
 
             if(!newVal.endsWith('se') && newVal.endsWith('e')) {
                 newVal += '^(';

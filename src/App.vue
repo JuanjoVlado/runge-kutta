@@ -10,12 +10,16 @@
           <div class="nav-tag" @click="activeTab=2" :class="{active:activeTab==2}">Graficar</div>
         </div>
         <div class="tabs-container">
+          <input-with-label :label-value="'Limite x:'" :key-value="'xlim'" :input-value="xLimit" @input="updateXLimit"/>
           <div class="tab" v-show="activeTab==1">
             <span class="info">Ingrese EDO para aproximar:</span>
             <fn-input-with-label :label-value="`y' =`" :key-value="'fn'" :input-value="aproxSettings.fn" @input="updateAproxSettings"/>
-            <input-with-label :label-value="'h ='" :key-value="'h'" :input-value="aproxSettings.h" @input="updateAproxSettings"/>
-            <input-with-label :label-value="'xi ='" :key-value="'x'" :input-value="aproxSettings.x" @input="updateAproxSettings"/>
-            <input-with-label :label-value="'yi ='" :key-value="'y'" :input-value="aproxSettings.y" @input="updateAproxSettings"/>
+            <div class="tab-input-grid">
+              <input-with-label class="col-1" :label-value="'xi ='" :key-value="'x'" :input-value="aproxSettings.x" @input="updateAproxSettings"/>
+              <input-with-label class="col-3" :label-value="'h ='" :key-value="'h'" :input-value="aproxSettings.h" @input="updateAproxSettings"/>
+              <input-with-label class="col-1" :label-value="'yi ='" :key-value="'y'" :input-value="aproxSettings.y" @input="updateAproxSettings"/>
+            </div>
+            
             <div class="examples-container">
               <select name="examples" v-model="currentExample">
                 <optgroup label="Examples">
@@ -30,7 +34,9 @@
           <div class="tab" v-show="activeTab==2">
             <span class="info">Ingrese función para graficar:</span>
             <fn-input-with-label :label-value="`y =`" :key-value="'fn'" :input-value="fnPlotSettings.fn" @input="updateFnPlotSettings"/>
-            <input-with-label :label-value="'x ='" :key-value="'x'" :input-value="fnPlotSettings.x" @input="updateFnPlotSettings"/>
+            <div class="tab-input-grid">
+              <input-with-label :label-value="'x ='" :key-value="'x'" :input-value="fnPlotSettings.x" @input="updateFnPlotSettings"/>
+            </div>
             <div class="examples-container">
               <select name="examples" v-model="currentExample">
                 <optgroup label="Examples">
@@ -72,6 +78,7 @@ export default {
     return {
       roundFactor: 1000000,
       decimalPoints: 6,
+      xLimit: 2,
       activeTab: 1,
       currentExample: 'example_01',
       aproxSettings: {
@@ -119,16 +126,25 @@ export default {
     }
   },
   methods: {
+    updateXLimit(k, v) {
+      this.xLimit = Number.parseInt(v);
+    },
     updateAproxSettings(k, v) {
       let numval = Number.parseFloat(v*100)/100;
       this.aproxSettings[k] = isNaN(numval) ? v : numval;
       if(k == 'h') {
         this.fnPlotSettings[k] = isNaN(numval) ? v : numval;
       }
+      if(k=='x') {
+        this.xLimit = numval+1;
+      }
     },
     updateFnPlotSettings(k, v) {
       let numval = Number.parseFloat(v*100)/100;
       this.fnPlotSettings[k] = isNaN(numval) ? v : numval;
+      if(k=='x') {
+        this.xLimit = numval+1;
+      }
     },
     runge_kutta(fn, h, xi, yi) {
       let k1 = fn.call(this, xi, yi);
@@ -142,7 +158,7 @@ export default {
     getValues(fn, h, xi, yi) {
       let steps = [];
       let step = xi;
-      let limit = xi+1;
+      let limit = this.xLimit;
       h = Math.round(Number.parseFloat(h)*100,2)/100;
       xi = Math.round(Number.parseFloat(xi)*100, 2)/100;
       yi = Number.parseFloat(yi);
@@ -252,7 +268,6 @@ export default {
         exp = exp.replace(/exp/g, Math.exp(1));
         exp = exp.replace(/PI/ig, Math.PI.toString());
         exp = exp.replace(/ln/g, 'log');
-
         return this.operateExpression(exp);
       };
 
@@ -260,7 +275,7 @@ export default {
     },
     plotSolution(fn, h, x) {
       let data = []
-      for(let i = x; i < (x+1); i+=h) {
+      for(let i = x; i <= this.xLimit; i+=h) {
         data.push({
           'x': Math.round(i*100,2)/100,
           'y': fn.call(this, i, 0),
@@ -289,9 +304,6 @@ export default {
           'data': this.plotSolution(fn, this.fnPlotSettings.h, this.fnPlotSettings.x)
         }
       }
-    },
-    updateTableData() {
-
     }
   },
   watch: {
@@ -369,6 +381,11 @@ h1 {
   padding: 0.5em;
   margin-bottom: 1em;
 }
+.tab-input-grid {
+  display: grid;
+  grid-template-columns: 1fr 0.2fr 1fr;
+}
+
 span.info {
   font-size: 0.6em;
   text-align: left;
@@ -380,6 +397,9 @@ input, select {
   border: none;
   padding: 0;
   margin: 0;
+}
+input {
+  padding-left: 0.2em;
 }
 
 select {
@@ -406,7 +426,12 @@ button:hover {
   cursor: pointer;
 }
 
-
+.col-1 {
+  grid-column-start: 1;
+}
+.col-3 {
+  grid-column-start: 3;
+}
 
 @media screen and (min-width: 768px) {
   .divider {display: none;}

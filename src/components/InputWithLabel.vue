@@ -48,7 +48,7 @@ export default {
 
 .input-with-label {
     display: flex;
-    justify-content: center;
+    justify-content: left;
 }
 
 .input-with-label label {
@@ -63,7 +63,7 @@ export default {
 }
 .input-with-label input {
     font-size: 1em;
-    width: 4em;
+    width: 3em;
     border-radius: 0 0.2em 0.2em 0;
     border: 1px solid #8f8f9d;
     border-left: none;
@@ -71,8 +71,5 @@ export default {
 }
 
 @media screen and (min-width: 768px) {
-    .input-with-label input {
-        width: 2em;
-    }
 }
 </style>
