@@ -280,9 +280,15 @@ export default {
 
       if(toAproximate) {
         let s = this.aproxSettings;
-        this.tableData = this.getValues(fn, s.h, s.x, s.y);
+        this.tableData = {
+          'chartTitle': 'A: '+this.aproxSettings.fn,
+          'data': this.getValues(fn, s.h, s.x, s.y)
+        }
       } else {
-        this.tableData = this.plotSolution(fn, this.fnPlotSettings.h, this.fnPlotSettings.x);
+        this.tableData = {
+          'chartTitle': 'G: '+this.fnPlotSettings.fn,
+          'data': this.plotSolution(fn, this.fnPlotSettings.h, this.fnPlotSettings.x)
+        }
       }
     },
     updateTableData() {
