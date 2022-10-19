@@ -3,35 +3,40 @@
     <div class="work-area">  
       <h1>Método de Runge-Kutta</h1>
       <graph-box id="chart_display" :table-data="tableData" @chartCleared="tableData={}"/>
-      
+      <div class="divider"></div>
       <div class="settings-container">
         <div class="nav-bar">
           <div class="nav-tag" @click="activeTab=1" :class="{active:activeTab==1}">Aproximar</div>
           <div class="nav-tag" @click="activeTab=2" :class="{active:activeTab==2}">Graficar</div>
         </div>
         <div class="tabs-container">
-          <div class="tab" v-if="activeTab==1">
-            <fn-input-with-label :label-value="`y' =`" :key-value="'fn'" :value="aproxSettings.fn" @input="updateAproxSettings"/>
-            <input-with-label :label-value="'h ='" :key-value="'h'" :value="aproxSettings.h" @input="updateAproxSettings"/>
-            <input-with-label :label-value="'xi ='" :key-value="'x'" :value="aproxSettings.x" @input="updateAproxSettings"/>
-            <input-with-label :label-value="'yi ='" :key-value="'y'" :value="aproxSettings.y" @input="updateAproxSettings"/>
-            <select name="examples" id="examples_select">
-              <optgroup label="Examples">
-                <option value="example_01">Ejemplo 1</option>
-                <option value="example_02">Ejemplo 2</option>
-                <option value="example_03">Ejemplo 3</option>
-                <option value="example_04">Ejemplo 4</option>
-              </optgroup>
-            </select>
-            <button>Aproximar</button>
+          <div class="tab" v-show="activeTab==1">
+            <span class="info">Ingrese EDO para aproximar:</span>
+            <fn-input-with-label :label-value="`y' =`" :key-value="'fn'" :input-value="aproxSettings.fn" @input="updateAproxSettings"/>
+            <input-with-label :label-value="'h ='" :key-value="'h'" :input-value="aproxSettings.h" @input="updateAproxSettings"/>
+            <input-with-label :label-value="'xi ='" :key-value="'x'" :input-value="aproxSettings.x" @input="updateAproxSettings"/>
+            <input-with-label :label-value="'yi ='" :key-value="'y'" :input-value="aproxSettings.y" @input="updateAproxSettings"/>
+            <div class="examples-container">
+              <select name="examples" id="examples_select" @change="changeExample">
+                <optgroup label="Examples">
+                  <option value="example_01">Ejemplo 1</option>
+                  <option value="example_02">Ejemplo 2</option>
+                  <option value="example_03">Ejemplo 3</option>
+                  <option value="example_04">Ejemplo 4</option>
+                </optgroup>
+              </select>
+              <button @click="parseExpression(true)">Aproximar</button>
+            </div>
           </div>
-          <div class="tab" v-if="activeTab==2">
-            <fn-input-with-label :label-value="`y =`"/>
-            <input-with-label :label-value="'x ='" :key-value="'x'" :value="fnPlotSettings.x" @input="updateFnPlotSettings"/>
+          <div class="tab" v-show="activeTab==2">
+            <span class="info">Ingrese función para graficar:</span>
+            <fn-input-with-label :label-value="`y =`" :key-value="'fn'" :input-value="fnPlotSettings.fn" @input="updateFnPlotSettings"/>
+            <input-with-label :label-value="'x ='" :key-value="'x'" :input-value="fnPlotSettings.x" @input="updateFnPlotSettings"/>
+            <button @click="parseExpression(false)">Graficar</button>
           </div>
         </div>
       </div>
-      
+      <div class="divider"></div>
       <data-table id="data_table" :table-data="tableData"/>
     </div>
 
@@ -72,13 +77,44 @@ export default {
         'x': 1,
       },
       mathExpression: "",
-      parsedExpression: "",
       tableData: {},
-      currentValues: {
-        "fn": "2*x*y",
-        "h": 0.1,
-        "x": 0,
-        "y": 1
+      examples: {
+        'example_01': {
+          'edo': {
+            'fn': '2*x*y',
+            'h': 0.1,
+            'x': 1,
+            'y': 5
+          },
+          'solution': 'e^(x^(2))'
+        },
+        'example_02': {
+          'edo': {
+            'fn': '1 + y^2',
+            'h': 0.1,
+            'x': 0,
+            'y': 0
+          },
+          'solution': ''
+        },
+        'example_03': {
+          'edo': {
+            'fn': 'x*y + sqrt(y)',
+            'h': 0.1,
+            'x': 1,
+            'y': 0
+          },
+          'solution': ''
+        },
+        'example_04':{
+          'edo': {
+            'fn':'',
+            'h': 0.1,
+            'x': 0,
+            'y': 0
+          },
+          'solution': ''
+        }
       }
     }
   },
@@ -92,33 +128,11 @@ export default {
     updateFnPlotSettings(k, v) {
       this.fnPlotSettings[k] = v;
     },
-    changeExample(newValue) {
-      switch (newValue) {
-        case 'example_01':
-          this.$data.currentValues = {
-            'fn': '2*x*y',
-            'h': 0.1,
-            'x': 1,
-            'y': 5
-          };
-          break;
-        case 'example_02':
-          this.$data.currentValues = {
-            'fn': '1 + y^2',
-            'h': 0.1,
-            'x': 0,
-            'y': 0
-          };
-          break;
-        case 'example_03':
-          this.$data.currentValues = {
-            'fn': 'x*y + sqrt(y)',
-            'h': 0.1,
-            'x': 1,
-            'y': 0
-          };
-          break;
-      }
+    changeExample(ev) {
+      let newValue = ev.target.value;
+      this.aproxSettings = this.examples[newValue].edo;
+      this.fnPlotSettings.fn = this.examples[newValue].solution;
+      this.fnPlotSettings.x = this.examples[newValue].edo.x;
     },
     runge_kutta(fn, h, xi, yi) {
       let k1 = fn.call(this, xi, yi);
@@ -226,10 +240,10 @@ export default {
     // Transforma la expresión matemática en una función de javascript
     // y retorna dicha función para ser usada en otra parte.
     functionBuilder(mathExpression) {
-      this.$data.mathExpression = mathExpression;
+      this.mathExpression = mathExpression;
 
       let fn = function(x, y) {
-        let exp = this.$data.mathExpression;
+        let exp = this.mathExpression;
         x = Math.round(x*100, 2)/100;
 
         exp = exp.replace(/x/g, x);
@@ -247,9 +261,9 @@ export default {
 
       return fn;
     },
-    plotExpression(fn, h) {
+    plotSolution(fn, h, x) {
       let data = []
-      for(let i = 0; i < 2; i+=h) {
+      for(let i = x; i < (x+1); i+=h) {
         data.push({
           'x': Math.round(i*100,2)/100,
           'y': fn.call(this, i, 0),
@@ -261,6 +275,16 @@ export default {
         });
       }
       return data;
+    },
+    parseExpression(toAproximate) {
+      let expression = toAproximate ? this.aproxSettings.fn : this.plotSolution.fn;
+      let fn = this.functionBuilder(expression);
+
+      if(toAproximate) {
+        console.log("Aproximate....");
+      } else {
+        this.tableData = this.plotSolution(fn, this.plotSolution.h, this.plotSolution.x);
+      }
     },
     updateTableData() {
 
@@ -295,7 +319,11 @@ h1 {
   margin-top: 0;
   max-width: 50em;
 }
-
+.divider {
+  width: 100%;
+  border-bottom: 1px solid #8f8f9d4f;
+  margin-bottom: 1em;
+}
 .work-area {
   padding: 0.3em;
 }
@@ -318,21 +346,44 @@ h1 {
   background-color: #05668D;
   color: white;
 }
+.nav-tag:hover {
+  cursor: pointer;
+  user-select: none;
+}
 
 .tabs-container {
   border: 1px solid #8f8f9d;
+  padding: 0.5em;
+  margin-bottom: 1em;
 }
-
+span.info {
+  font-size: 0.6em;
+  text-align: left;
+  display: block;
+  padding: 0.4em 0;
+  padding-bottom: 0.6em;
+}
 input, select {
   border: none;
   padding: 0;
   margin: 0;
 }
 
+select {
+  font-size: 0.8em;
+  padding: 0.4em;
+}
+
+.examples-container {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-evenly;
+}
+
 button {
   font-size: 20px;
   border: none;
-  padding: 0.5em;
+  padding: 0.5em 0.8em;
   margin-top: 0.2em;
   background-color: #05668D;
   border: 1px solid #8f8f9d;

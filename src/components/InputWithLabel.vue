@@ -3,7 +3,7 @@
         <div class="input-with-label">
             <label for="function_input">{{ labelValue }}</label>
             <input id="function_input" type="number"
-            :value="content"
+            v-model="content"
             @input="parametersChanged">
         </div>
     </div>
@@ -12,11 +12,12 @@
 <script>
 
 export default {
-    name: 'GraphSettings',
+    name: 'InputWithLabel',
     props: {
         labelValue: String,
         type: String,
-        keyValue: String
+        keyValue: String,
+        inputValue: [Number, String]
     },
     data() {
         return {
@@ -26,6 +27,11 @@ export default {
     methods: {
         parametersChanged(event) {
             this.$emit('input', this.keyValue, event.target.value);
+        }
+    },
+    watch: {
+        inputValue(newVal) {
+            this.content = Number.parseFloat(newVal);
         }
     }
 }

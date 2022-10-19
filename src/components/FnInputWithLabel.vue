@@ -3,7 +3,7 @@
         <div class="input-with-label">
             <label for="function_input">{{ labelValue }}</label>
             <input id="function_input" type="text"
-            :value="content"
+            v-model="content"
             @input="parametersChanged">
         </div>
     </div>
@@ -12,7 +12,7 @@
 <script>
 
 export default {
-    name: 'GraphSettings',
+    name: 'FnInputWithLabel',
     data() {
         return {
             content: ""
@@ -20,7 +20,8 @@ export default {
     },
     props: {
         labelValue: String,
-        keyValue: String
+        keyValue: String,
+        inputValue: [Number, String]
     },
     methods: {
         parametersChanged(event) {
@@ -29,38 +30,36 @@ export default {
     },
     watch: {
         content(newVal) {
-            let v = newVal;
-            v = v.toLocaleLowerCase();
-            v = v.replace(/pi/ig, 'PI');
-            v = v.replace(/([xyI])([Pxy])/g, '$1*$2');
-            v = v.replace(/(\d+|i)([pxy])/g, '$1*$2');
+            newVal = newVal.toLocaleLowerCase();
+            newVal = newVal.replace(/pi/ig, 'PI');
+            newVal = newVal.replace(/([xyI])([Pxy])/g, '$1*$2');
+            newVal = newVal.replace(/(\d+|i)([pxy])/g, '$1*$2');
             
-            if(v.endsWith('^') ||
-               v.endsWith("sqrt") ||
-               v.endsWith("ln") ||
-               v.endsWith("sin") ||
-               v.endsWith("sen") ||
-               v.endsWith("cos") ||
-               v.endsWith("tan")
+            if(newVal.endsWith('^') ||
+               newVal.endsWith("sqrt") ||
+               newVal.endsWith("ln") ||
+               newVal.endsWith("sin") ||
+               newVal.endsWith("sen") ||
+               newVal.endsWith("cos") ||
+               newVal.endsWith("tan")
             ) {
-                v += "(";
+                newVal += "(";
             }
 
-            if(!v.endsWith('se') && v.endsWith('e')) {
-                v += '^(';
+            if(!newVal.endsWith('se') && newVal.endsWith('e')) {
+                newVal += '^(';
             }
 
-            if(v.endsWith("**")) {
-                v = v.replace('**', '^(');
+            if(newVal.endsWith("**")) {
+                newVal = newVal.replace('**', '^(');
             }
 
-            this.content = v;
-            this.$emit('parametersChanged', 'fn', v);
+            this.content = newVal;
+            this.$emit('parametersChanged', 'fn', newVal);
         },
-        currentValue() {
-            if(this.currentValue && this.currentValue.fn.length > 0) {
-                this.fnValue = this.currentValue.fn;
-            }
+        inputValue(newVal) {
+            if(!newVal) return;
+            this.content = newVal;
         }
     },
     mounted() {
