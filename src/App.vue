@@ -96,7 +96,7 @@ export default {
             'x': 0,
             'y': 0
           },
-          'solution': ''
+          'solution': 'tan(x)'
         },
         'example_03': {
           'edo': {
@@ -293,6 +293,9 @@ export default {
     currentExample(newVal) {
       let newObj = this.examples[newVal].edo;
       this.aproxSettings = newObj;
+      this.fnPlotSettings.fn = this.examples[newVal].solution;
+      this.fnPlotSettings.h = newObj.h;
+      this.fnPlotSettings.x = newObj.x;
     }
   }
 }
