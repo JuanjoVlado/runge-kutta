@@ -12,7 +12,7 @@
                 </tr>
             </thead>
             <tbody>
-                <tr v-for="row in tableData" :key="row.step">
+                <tr v-for="row in thisData" :key="row.step">
                     <td>{{row.x | roundVal}}</td>
                     <td>{{row.k1 | roundVal}}</td>
                     <td>{{row.k2 | roundVal}}</td>
@@ -30,6 +30,11 @@
 
 export default {
     name: 'DataTable',
+    data() {
+        return {
+            thisData: {}
+        }
+    },
     props: {
         tableData: [Object, Array]
     },
@@ -37,6 +42,11 @@ export default {
         roundVal(val) {
             let roundFactor = 1000000;
             return Math.round(val*roundFactor, 6)/roundFactor;
+        }
+    },
+    watch: {
+        tableData(newValue) {
+            this.thisData = newValue.data;
         }
     }
 }

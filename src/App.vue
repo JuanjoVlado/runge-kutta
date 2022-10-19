@@ -17,12 +17,11 @@
             <input-with-label :label-value="'xi ='" :key-value="'x'" :input-value="aproxSettings.x" @input="updateAproxSettings"/>
             <input-with-label :label-value="'yi ='" :key-value="'y'" :input-value="aproxSettings.y" @input="updateAproxSettings"/>
             <div class="examples-container">
-              <select name="examples" id="examples_select" v-model="currentExample">
+              <select name="examples" v-model="currentExample">
                 <optgroup label="Examples">
                   <option value="example_01">Ejemplo 1</option>
                   <option value="example_02">Ejemplo 2</option>
                   <option value="example_03">Ejemplo 3</option>
-                  <option value="example_04">Ejemplo 4</option>
                 </optgroup>
               </select>
               <button @click="parseExpression(true)">Aproximar</button>
@@ -32,7 +31,16 @@
             <span class="info">Ingrese función para graficar:</span>
             <fn-input-with-label :label-value="`y =`" :key-value="'fn'" :input-value="fnPlotSettings.fn" @input="updateFnPlotSettings"/>
             <input-with-label :label-value="'x ='" :key-value="'x'" :input-value="fnPlotSettings.x" @input="updateFnPlotSettings"/>
-            <button @click="parseExpression(false)">Graficar</button>
+            <div class="examples-container">
+              <select name="examples" v-model="currentExample">
+                <optgroup label="Examples">
+                  <option value="example_01">Ejemplo 1</option>
+                  <option value="example_02">Ejemplo 2</option>
+                  <option value="example_03">Ejemplo 3</option>
+                </optgroup>
+              </select>
+              <button @click="parseExpression(false)">Graficar</button>
+            </div>
           </div>
         </div>
       </div>
@@ -98,23 +106,14 @@ export default {
           },
           'solution': 'tan(x)'
         },
-        'example_03': {
+        'example_03':{
           'edo': {
-            'fn': 'x*y + sqrt(y)',
-            'h': 0.1,
-            'x': 1,
-            'y': 0
-          },
-          'solution': ''
-        },
-        'example_04':{
-          'edo': {
-            'fn':'x^2',
+            'fn':'-2*y+x^(3)*e^(-2*x)',
             'h': 0.1,
             'x': 0,
-            'y': 0
+            'y': 1
           },
-          'solution': 'x'
+          'solution': '((e^(-2*x))/4)*(x^(4)+4)'
         }
       }
     }
@@ -239,7 +238,7 @@ export default {
     // y retorna dicha función para ser usada en otra parte.
     functionBuilder(mathExpression) {
       this.mathExpression = mathExpression;
-
+      
       let fn = function(x, y) {
         let exp = this.mathExpression;
         x = Math.round(x*100, 2)/100;
@@ -410,37 +409,40 @@ button:hover {
 
 
 @media screen and (min-width: 768px) {
-  h1 {
-    grid-column-start: 1;
-    grid-row-start: 1;
-    grid-column-end: 3;
+  .divider {display: none;}
+  
+  body,
+  #app {
+    display: grid;
+    justify-content: center;
+    background-color: #dbd9d3;
   }
 
   #app {
+    grid-template-columns: min-content;
+    background-color: white;;
+  }
+  .work-area {
     display: grid;
-    grid-template-columns: 0.5fr 1fr;
-    grid-template-rows: 0.1fr 1fr auto;
-    justify-content: space-evenly;
-    align-items: stretch;
+    grid-template-columns: min-content 1f;
+    width: 45em;
+    padding: 0.3em 1em;
+  }
+  h1 {
+    grid-column: 1 / span 2;
   }
   #chart_display {
-    grid-column: 2;
-    grid-row: 2;
+    grid-column-start: 2;
   }
-  #graph_settings {
+
+  .settings-container {
     grid-column-start: 1;
     grid-row-start: 2;
     margin-right: 1em;
+    min-width: 13em;
   }
 
   #data_table {
-    margin-top: 0;
-    grid-column-start: 1;
-    grid-column-end: 3;
-  }
-
-  #app_footer {
-    grid-row-start: 4;
     grid-column: 1 / span 2;
   }
 }
