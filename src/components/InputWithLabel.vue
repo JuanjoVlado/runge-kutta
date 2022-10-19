@@ -1,9 +1,9 @@
 <template>
     <div class="input-container">
         <div class="input-with-label">
-            <label for="function_input">{{ labelValue }}</label>
-            <input id="function_input" type="number"
-            v-model="content"
+            <label>{{ labelValue }}</label>
+            <input type="number"
+            :value="content"
             @input="parametersChanged">
         </div>
     </div>
@@ -17,7 +17,7 @@ export default {
         labelValue: String,
         type: String,
         keyValue: String,
-        inputValue: [Number, String]
+        inputValue: Number
     },
     data() {
         return {
@@ -31,8 +31,11 @@ export default {
     },
     watch: {
         inputValue(newVal) {
-            this.content = Number.parseFloat(newVal);
+            this.content = newVal
         }
+    },
+    mounted() {
+        this.content = this.inputValue;
     }
 }
 

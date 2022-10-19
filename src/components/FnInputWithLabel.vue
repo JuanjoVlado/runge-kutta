@@ -63,9 +63,7 @@ export default {
         }
     },
     mounted() {
-        if(this.currentValue && this.currentValue.fn.length > 0) {
-            this.fnValue = this.currentValue.fn;
-        }
+        this.content = this.inputValue;
     }
 }
 

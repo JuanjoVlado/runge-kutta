@@ -17,7 +17,7 @@
             <input-with-label :label-value="'xi ='" :key-value="'x'" :input-value="aproxSettings.x" @input="updateAproxSettings"/>
             <input-with-label :label-value="'yi ='" :key-value="'y'" :input-value="aproxSettings.y" @input="updateAproxSettings"/>
             <div class="examples-container">
-              <select name="examples" id="examples_select" @change="changeExample">
+              <select name="examples" id="examples_select" v-model="currentExample">
                 <optgroup label="Examples">
                   <option value="example_01">Ejemplo 1</option>
                   <option value="example_02">Ejemplo 2</option>
@@ -65,6 +65,7 @@ export default {
       roundFactor: 1000000,
       decimalPoints: 6,
       activeTab: 1,
+      currentExample: 'example_01',
       aproxSettings: {
         'fn': '2*x*y',
         'h': 0.1,
@@ -72,7 +73,7 @@ export default {
         'y': 2
       },
       fnPlotSettings: {
-        'fn': '2*x*y',
+        'fn': 'e^(x^(2))',
         'h': 0.1,
         'x': 1,
       },
@@ -108,12 +109,12 @@ export default {
         },
         'example_04':{
           'edo': {
-            'fn':'',
+            'fn':'x^2',
             'h': 0.1,
             'x': 0,
             'y': 0
           },
-          'solution': ''
+          'solution': 'x'
         }
       }
     }
@@ -121,18 +122,12 @@ export default {
   methods: {
     updateAproxSettings(k, v) {
       this.aproxSettings[k] = v;
-      if(k==='h') {
+      if(k == 'h') {
         this.fnPlotSettings[k] = v;  
       }
     },
     updateFnPlotSettings(k, v) {
       this.fnPlotSettings[k] = v;
-    },
-    changeExample(ev) {
-      let newValue = ev.target.value;
-      this.aproxSettings = this.examples[newValue].edo;
-      this.fnPlotSettings.fn = this.examples[newValue].solution;
-      this.fnPlotSettings.x = this.examples[newValue].edo.x;
     },
     runge_kutta(fn, h, xi, yi) {
       let k1 = fn.call(this, xi, yi);
@@ -277,6 +272,7 @@ export default {
       return data;
     },
     parseExpression(toAproximate) {
+      console.log("parseExpression:", toAproximate)
       let expression = toAproximate ? this.aproxSettings.fn : this.plotSolution.fn;
       let fn = this.functionBuilder(expression);
 
@@ -288,6 +284,12 @@ export default {
     },
     updateTableData() {
 
+    }
+  },
+  watch: {
+    currentExample(newVal) {
+      let newObj = this.examples[newVal].edo;
+      this.aproxSettings = newObj;
     }
   }
 }
