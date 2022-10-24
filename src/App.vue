@@ -4,6 +4,19 @@
       <h1>Método de Runge-Kutta</h1>
       <graph-box id="chart_display" :table-data="tableData" @chartCleared="tableData={}"/>
       <div class="divider"></div>
+      <div class="grade-selector">
+        <div>Orden:</div>
+        <label :class="{active:order==1}">
+          <input type="radio" name="grade" v-model="order" value="1"> Primer orden
+        </label>
+        <label :class="{active:order==2}">
+          <input type="radio" name="grade" v-model="order" value="2"> Segundo orden
+        </label>
+        <label :class="{active:order==4}">
+          <input type="radio" name="grade" v-model="order" value="4"> Cuarto orden
+        </label>
+      </div>
+      <div class="divider"></div>
       <div class="settings-container">
         <div class="nav-bar">
           <div class="nav-tag" @click="activeTab=1" :class="{active:activeTab==1}">Aproximar</div>
@@ -76,6 +89,7 @@ export default {
   },
   data() {
     return {
+      order: 1,
       roundFactor: 1000000,
       decimalPoints: 6,
       xLimit: 2,
@@ -158,7 +172,19 @@ export default {
      * @returns {Object} The results of each step of the algorith for specific values of x and y.
      * The result object includes {k1, k2, k3, k4, y}.
      */
-    runge_kutta(fn, h, xi, yi) {
+    runge_kutta_k1(fn, h, xi, yi) {
+      let y = yi + h*fn.call(this, xi, yi);
+      
+      return {k1:0, k2:0, k3:0, k4:0, y};
+    },
+    runge_kutta_k2(fn, h, xi, yi) {
+      let k1 = fn.call(this, xi, yi);
+      let k2 = fn.call(this, xi + h, yi + h*k1);
+      let y = (yi + (h/2)*(k1 + k2));
+      
+      return {k1, k2, k3:0, k4:0, y};
+    },
+    runge_kutta_k4(fn, h, xi, yi) {
       let k1 = fn.call(this, xi, yi);
       let k2 = fn.call(this, xi + (h/2), yi + (h*k1)/2);
       let k3 = fn.call(this, xi + (h/2), yi + (h*k2)/2);
@@ -185,9 +211,19 @@ export default {
       h = Math.round(Number.parseFloat(h)*100,2)/100;
       xi = Math.round(Number.parseFloat(xi)*100, 2)/100;
       yi = Number.parseFloat(yi);
+      let rk_fn = this.runge_kutta_k1;
+
+      switch(this.order) {
+        case "2":
+          rk_fn = this.runge_kutta_k2;
+          break;
+        case "4":
+          rk_fn = this.runge_kutta_k4;
+          break;
+      }
 
       while(step <= limit) {
-        let res = this.runge_kutta(fn, h, xi, yi);
+        let res = rk_fn.call(this, fn, h, xi, yi);
         yi = res.y;
         res.x = Math.round(xi*100, 2)/100;
         res.key = step;
@@ -407,12 +443,12 @@ export default {
       if(toAproximate) {
         let s = this.aproxSettings;
         this.tableData = {
-          'chartTitle': 'A: '+this.aproxSettings.fn,
+          'chartTitle': `O${this.order}: ${this.aproxSettings.fn}`,
           'data': this.getValues(fn, s.h, s.x, s.y)
         }
       } else {
         this.tableData = {
-          'chartTitle': 'G: '+this.fnPlotSettings.fn,
+          'chartTitle': `G: ${this.fnPlotSettings.fn}`,
           'data': this.plotSolution(fn, this.fnPlotSettings.h, this.fnPlotSettings.x)
         }
       }
@@ -464,6 +500,31 @@ h1 {
 }
 .work-area {
   padding: 0.3em;
+}
+
+.grade-selector {
+  font-size: 0.9em;
+  display: flex;
+  flex-direction: column;
+  align-items: baseline;
+  padding: 0.5em;
+}
+.grade-selector label {
+  text-align: left;
+  padding: 0.4em 0.5em;
+  padding-right: 0.7em;
+  margin-bottom: 0.2em;
+  border-radius: 0.5em;
+  border: 1px solid #8f8f9d;
+  min-width: 9em;
+  user-select: none;
+}
+.grade-selector label.active {
+  background-color: #05668D;
+  color: white;
+}
+.grade-selector label:hover {
+  cursor: pointer;
 }
 
 .nav-bar {
@@ -562,15 +623,17 @@ button:hover {
   }
   .work-area {
     display: grid;
-    grid-template-columns: min-content 1f;
+    grid-template-columns: min-content 1fr;
     width: 45em;
     padding: 0.3em 1em;
+    grid-template-rows: min-content min-content 1fr;
   }
   h1 {
     grid-column: 1 / span 2;
   }
   #chart_display {
     grid-column-start: 2;
+    grid-row-end: span 2;
   }
 
   .settings-container {
