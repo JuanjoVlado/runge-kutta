@@ -9,16 +9,20 @@
                     <th>K3</th>
                     <th>K4</th>
                     <th>yi</th>
+                    <th v-if="thisData.exact.length > 0">Valor real</th>
+                    <th v-if="thisData.exact.length > 0">e%</th>
                 </tr>
             </thead>
             <tbody>
-                <tr v-for="row in tableData" :key="row.step">
+                <tr v-for="(row, k) in thisData.aprox" :key="row.step">
                     <td>{{row.x | roundVal}}</td>
                     <td>{{row.k1 | roundVal}}</td>
                     <td>{{row.k2 | roundVal}}</td>
                     <td>{{row.k3 | roundVal}}</td>
                     <td>{{row.k4 | roundVal}}</td>
                     <td>{{row.y | roundVal}}</td>
+                    <td v-if="thisData.exact.length > 0">{{thisData.exact[k].y | roundVal}}</td>
+                    <td v-if="thisData.exact.length > 0">{{calcError(thisData.exact[k].y,row.y)}}</td>
                 </tr>
             </tbody>
         </table>
@@ -30,6 +34,14 @@
 
 export default {
     name: 'DataTable',
+    data() {
+        return {
+            thisData: {
+                'aprox': {},
+                'exact': {}
+            }
+        }
+    },
     props: {
         tableData: [Object, Array]
     },
@@ -37,6 +49,25 @@ export default {
         roundVal(val) {
             let roundFactor = 1000000;
             return Math.round(val*roundFactor, 6)/roundFactor;
+        }
+    },
+    methods: {
+        calcError(x, xi) {
+            let absError = Math.abs(x-xi);
+            let err = isNaN(absError/x) ? 0 : absError/x;
+            return Math.abs((Math.round(err*10000)/100))+'%';
+        }
+    },
+    watch: {
+        tableData(newValue) {
+            if(newValue.aprox) {
+                this.thisData.aprox = newValue.aprox;
+            } else if(newValue.exact) {
+                this.thisData.exact = newValue.exact;
+            } else {
+                this.thisData.aprox = {};
+                this.thisData.exact = {};
+            }
         }
     }
 }
@@ -56,5 +87,8 @@ table {
 th, td {
     border: 1px solid #8f8f8f;
     padding: 0.2em 0.4em;
+}
+tr:hover {
+    background-color: #05668d2e;
 }
 </style>

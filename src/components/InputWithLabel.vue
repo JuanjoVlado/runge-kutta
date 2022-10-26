@@ -1,13 +1,10 @@
 <template>
-    <div class="input-container"
-        :label="labelValue"
-        :type="type">
+    <div class="input-container">
         <div class="input-with-label">
-            <label for="function_input">{{ labelValue }}</label>
-            <input id="function_input"
-            :type="type"
-            :value="currentValue[valueKey]"
-            @change="parametersChanged">
+            <label>{{ labelValue }}</label>
+            <input type="number"
+            :value="content"
+            @input="parametersChanged">
         </div>
     </div>
 </template>
@@ -15,17 +12,30 @@
 <script>
 
 export default {
-    name: 'GraphSettings',
+    name: 'InputWithLabel',
     props: {
         labelValue: String,
         type: String,
-        currentValue: Object,
-        valueKey: String
+        keyValue: String,
+        inputValue: Number
+    },
+    data() {
+        return {
+            content: ""
+        }
     },
     methods: {
         parametersChanged(event) {
-            this.$emit('parametersChanged', this.valueKey, event.target.value);
+            this.$emit('input', this.keyValue, event.target.value);
         }
+    },
+    watch: {
+        inputValue(newVal) {
+            this.content = newVal
+        }
+    },
+    mounted() {
+        this.content = this.inputValue;
     }
 }
 
@@ -38,7 +48,7 @@ export default {
 
 .input-with-label {
     display: flex;
-    justify-content: center;
+    justify-content: left;
 }
 
 .input-with-label label {
@@ -53,7 +63,7 @@ export default {
 }
 .input-with-label input {
     font-size: 1em;
-    width: 4em;
+    width: 3em;
     border-radius: 0 0.2em 0.2em 0;
     border: 1px solid #8f8f9d;
     border-left: none;
@@ -61,8 +71,5 @@ export default {
 }
 
 @media screen and (min-width: 768px) {
-    .input-with-label input {
-        width: 2em;
-    }
 }
 </style>
