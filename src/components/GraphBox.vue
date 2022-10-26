@@ -119,22 +119,31 @@
     },
     watch: {
       tableData(newVal) {
-        if(newVal.data && newVal.data.length > 0) {
-          let labels = [];
-          let data = [];
-      
-          for(let i in newVal.data) {
-            labels.push(newVal.data[i].x);
-            data.push(newVal.data[i].y);
-          }
-      
-          this.chartData.labels = labels;
-          this.chartData.datasets.push({
-            label: newVal.chartTitle,
-            backgroundColor: this.chooseColor(),
-            data
-          });
+        let dataTable;
+
+        if(newVal.aprox && newVal.aprox.length > 0) {
+          dataTable = newVal.aprox;
+        } else if (newVal.exact && newVal.exact.length > 0) {
+          dataTable = newVal.exact;
+        } else {
+          return;
         }
+
+        let labels = [];
+        let data = [];
+    
+        for(let i in dataTable) {
+          labels.push(dataTable[i].x);
+          data.push(dataTable[i].y);
+        }
+    
+        this.chartData.labels = labels;
+        this.chartData.datasets.push({
+          label: newVal.chartTitle,
+          backgroundColor: this.chooseColor(),
+          data
+        });
+        
       }
     },
     mounted() {

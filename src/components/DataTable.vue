@@ -9,16 +9,20 @@
                     <th>K3</th>
                     <th>K4</th>
                     <th>yi</th>
+                    <th v-if="thisData.exact.length > 0">Valor real</th>
+                    <th v-if="thisData.exact.length > 0">e%</th>
                 </tr>
             </thead>
             <tbody>
-                <tr v-for="row in thisData" :key="row.step">
+                <tr v-for="(row, k) in thisData.aprox" :key="row.step">
                     <td>{{row.x | roundVal}}</td>
                     <td>{{row.k1 | roundVal}}</td>
                     <td>{{row.k2 | roundVal}}</td>
                     <td>{{row.k3 | roundVal}}</td>
                     <td>{{row.k4 | roundVal}}</td>
                     <td>{{row.y | roundVal}}</td>
+                    <td v-if="thisData.exact.length > 0">{{thisData.exact[k].y | roundVal}}</td>
+                    <td v-if="thisData.exact.length > 0">{{calcError(thisData.exact[k].y,row.y)}}</td>
                 </tr>
             </tbody>
         </table>
@@ -32,7 +36,10 @@ export default {
     name: 'DataTable',
     data() {
         return {
-            thisData: {}
+            thisData: {
+                'aprox': {},
+                'exact': {}
+            }
         }
     },
     props: {
@@ -44,9 +51,22 @@ export default {
             return Math.round(val*roundFactor, 6)/roundFactor;
         }
     },
+    methods: {
+        calcError(x, xi) {
+            let absError = Math.abs(x-xi);
+            let err = isNaN(absError/x) ? 0 : absError/x;
+            return (Math.round(err*10000)/100)+'%';
+        }
+    },
     watch: {
         tableData(newValue) {
-            this.thisData = newValue.data;
+            if(newValue.aprox) {
+                this.thisData.aprox = newValue.aprox;
+            }
+
+            if(newValue.exact) {
+                this.thisData.exact = newValue.exact;
+            }
         }
     }
 }

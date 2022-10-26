@@ -30,7 +30,7 @@
             <div class="tab-input-grid">
               <input-with-label class="col-1" :label-value="'xi ='" :key-value="'x'" :input-value="aproxSettings.x" @input="updateAproxSettings"/>
               <input-with-label class="col-3" :label-value="'h ='" :key-value="'h'" :input-value="aproxSettings.h" @input="updateAproxSettings"/>
-              <input-with-label class="col-1" :label-value="'yi ='" :key-value="'y'" :input-value="aproxSettings.y" @input="updateAproxSettings"/>
+              <input-with-label class="col-1" :label-value="'y(0) ='" :key-value="'y'" :input-value="aproxSettings.y" @input="updateAproxSettings"/>
             </div>
             
             <div class="examples-container">
@@ -107,7 +107,11 @@ export default {
         'x': 1,
       },
       mathExpression: "",
-      tableData: {},
+      tableData: {
+        'chartTitle': '',
+        'aprox': {},
+        'exact': {}
+      },
       examples: {
         'example_01': {
           'edo': {
@@ -135,7 +139,14 @@ export default {
             'y': 1
           },
           'solution': '((e^(-2*x))/4)*(x^(4)+4)'
-        }
+        },
+        'example_04': {
+          'fn': 'x + 1 - y',
+          'h': 0.25,
+          'x': 1,
+          'y': 0
+        },
+        'solution': 'x'
       }
     }
   },
@@ -205,8 +216,16 @@ export default {
      * the Runge-Kutta algorithm.
      */
     getValues(fn, h, xi, yi) {
-      let steps = [];
-      let step = xi;
+      let steps = [{
+        'k1': yi,
+        'k2': yi,
+        'k3': yi,
+        'k4': yi,
+        'x': xi,
+        'y': yi,
+        'key': xi
+      }];
+      let step = xi+h;
       let limit = this.xLimit;
       h = Math.round(Number.parseFloat(h)*100,2)/100;
       xi = Math.round(Number.parseFloat(xi)*100, 2)/100;
@@ -444,12 +463,12 @@ export default {
         let s = this.aproxSettings;
         this.tableData = {
           'chartTitle': `O${this.order}: ${this.aproxSettings.fn}`,
-          'data': this.getValues(fn, s.h, s.x, s.y)
+          'aprox': this.getValues(fn, s.h, s.x, s.y)
         }
       } else {
         this.tableData = {
           'chartTitle': `G: ${this.fnPlotSettings.fn}`,
-          'data': this.plotSolution(fn, this.fnPlotSettings.h, this.fnPlotSettings.x)
+          'exact': this.plotSolution(fn, this.fnPlotSettings.h, this.fnPlotSettings.x)
         }
       }
     }
@@ -640,7 +659,7 @@ button:hover {
     grid-column-start: 1;
     grid-row-start: 2;
     margin-right: 1em;
-    min-width: 13em;
+    min-width: 15em;
   }
 
   #data_table {
