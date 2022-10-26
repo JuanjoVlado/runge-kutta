@@ -30,7 +30,7 @@
             <div class="tab-input-grid">
               <input-with-label class="col-1" :label-value="'xi ='" :key-value="'x'" :input-value="aproxSettings.x" @input="updateAproxSettings"/>
               <input-with-label class="col-3" :label-value="'h ='" :key-value="'h'" :input-value="aproxSettings.h" @input="updateAproxSettings"/>
-              <input-with-label class="col-1" :label-value="'y(0) ='" :key-value="'y'" :input-value="aproxSettings.y" @input="updateAproxSettings"/>
+              <input-with-label class="col-1" :label-value="`y(${aproxSettings.x}) =`" :key-value="'y'" :input-value="aproxSettings.y" @input="updateAproxSettings"/>
             </div>
             
             <div class="examples-container">
@@ -39,6 +39,8 @@
                   <option value="example_01">Ejemplo 1</option>
                   <option value="example_02">Ejemplo 2</option>
                   <option value="example_03">Ejemplo 3</option>
+                  <option value="example_04">Prueba 1</option>
+                  <option value="example_05">Prueba 2</option>
                 </optgroup>
               </select>
               <button @click="parseExpression(true)">Aproximar</button>
@@ -56,6 +58,8 @@
                   <option value="example_01">Ejemplo 1</option>
                   <option value="example_02">Ejemplo 2</option>
                   <option value="example_03">Ejemplo 3</option>
+                  <option value="example_04">Prueba 1</option>
+                  <option value="example_05">Prueba 2</option>
                 </optgroup>
               </select>
               <button @click="parseExpression(false)">Graficar</button>
@@ -92,17 +96,17 @@ export default {
       order: 1,
       roundFactor: 1000000,
       decimalPoints: 6,
-      xLimit: 2,
+      xLimit: 1.5,
       activeTab: 1,
       currentExample: 'example_01',
       aproxSettings: {
         'fn': '2*x*y',
         'h': 0.1,
         'x': 1,
-        'y': 2
+        'y': 5
       },
       fnPlotSettings: {
-        'fn': 'e^(x^(2))',
+        'fn': '5*e^(x^(2)-1)',
         'h': 0.1,
         'x': 1,
       },
@@ -120,7 +124,7 @@ export default {
             'x': 1,
             'y': 5
           },
-          'solution': 'e^(x^(2))'
+          'solution': '5*e^(x^(2)-1)'
         },
         'example_02': {
           'edo': {
@@ -141,12 +145,23 @@ export default {
           'solution': '((e^(-2*x))/4)*(x^(4)+4)'
         },
         'example_04': {
-          'fn': 'x + 1 - y',
-          'h': 0.25,
-          'x': 1,
-          'y': 0
+          'edo': {
+            'fn': 'x+1-y',
+            'h': 0.25,
+            'x': 0,
+            'y': 0
+          },
+          'solution': 'x'
         },
-        'solution': 'x'
+        'example_05': {
+          'edo': {
+            'fn': '2*y-6',
+            'h': 0.25,
+            'x': 0,
+            'y': 1
+          },
+          'solution': '3-2*e^(2*x)'
+        }
       }
     }
   },
@@ -154,7 +169,7 @@ export default {
     // These methods handle the data when the user interacts with the app,
     // these have nothing to do with the proyect's objectives.
     updateXLimit(k, v) {
-      this.xLimit = Number.parseInt(v);
+      this.xLimit = Number.parseFloat(v);
     },
     updateAproxSettings(k, v) {
       let numval = Number.parseFloat(v*100)/100;
@@ -203,55 +218,6 @@ export default {
       let y = (yi + (h/6)*(k1 + (2*k2) + (2*k3) + k4));
 
       return {k1, k2, k3, k4, y};
-    },
-    /**
-     * This method executes the Runge-Kutta method for each value of x beginin with
-     * xi up to a limit deffinden by the user. 
-     * @param {function}  fn  Differencial equation to approximate.
-     * @param {Number}    h   Size of the increment in x on each iteration.
-     * @param {Number}    xi  Initial value for x.
-     * @param {Number}    yi  Initial value for y.
-     * 
-     * @returns {Array} List of objects that represent the result of each step of
-     * the Runge-Kutta algorithm.
-     */
-    getValues(fn, h, xi, yi) {
-      let steps = [{
-        'k1': yi,
-        'k2': yi,
-        'k3': yi,
-        'k4': yi,
-        'x': xi,
-        'y': yi,
-        'key': xi
-      }];
-      let step = xi+h;
-      let limit = this.xLimit;
-      h = Math.round(Number.parseFloat(h)*100,2)/100;
-      xi = Math.round(Number.parseFloat(xi)*100, 2)/100;
-      yi = Number.parseFloat(yi);
-      let rk_fn = this.runge_kutta_k1;
-
-      switch(this.order) {
-        case "2":
-          rk_fn = this.runge_kutta_k2;
-          break;
-        case "4":
-          rk_fn = this.runge_kutta_k4;
-          break;
-      }
-
-      while(step <= limit) {
-        let res = rk_fn.call(this, fn, h, xi, yi);
-        yi = res.y;
-        res.x = Math.round(xi*100, 2)/100;
-        res.key = step;
-        steps.push(res)
-        xi += Math.round(h*100,2)/100;
-        step += h;
-      }
-
-      return steps;
     },
     /**
      * Evaluates an string that represents a mathematical exression, captures each instance
@@ -421,6 +387,55 @@ export default {
       return fn;
     },
     /**
+     * This method executes the Runge-Kutta method for each value of x beginin with
+     * xi up to a limit deffinden by the user. 
+     * @param {function}  fn  Differencial equation to approximate.
+     * @param {Number}    h   Size of the increment in x on each iteration.
+     * @param {Number}    xi  Initial value for x.
+     * @param {Number}    yi  Initial value for y.
+     * 
+     * @returns {Array} List of objects that represent the result of each step of
+     * the Runge-Kutta algorithm.
+     */
+     getValues(fn, h, xi, yi) {
+      let steps = [{
+        'k1': yi,
+        'k2': yi,
+        'k3': yi,
+        'k4': yi,
+        'x': xi,
+        'y': yi,
+        'key': xi
+      }];
+      let step = xi;
+      let limit = Number.parseFloat(this.xLimit);
+      h = Math.round(Number.parseFloat(h)*100,2)/100;
+      xi = Math.round(Number.parseFloat(xi+h)*100, 2)/100;
+      yi = Number.parseFloat(yi);
+      let rk_fn = this.runge_kutta_k1;
+
+      switch(this.order) {
+        case "2":
+          rk_fn = this.runge_kutta_k2;
+          break;
+        case "4":
+          rk_fn = this.runge_kutta_k4;
+          break;
+      }
+
+      while(step <= limit) {
+        let res = rk_fn.call(this, fn, h, xi, yi);
+        yi = res.y;
+        res.x = Math.round(xi*100, 2)/100;
+        res.key = step;
+        steps.push(res)
+        xi += Math.round(h*100,2)/100;
+        step += h;
+      }
+
+      return steps;
+    },
+    /**
      * Evaluates a function from x to a limit deffined by the user adding to x an amount
      * equal to h for each iteration.
      * 
@@ -434,7 +449,7 @@ export default {
      */
     plotSolution(fn, h, x) {
       let data = []
-      for(let i = x; i <= this.xLimit; i+=h) {
+      for(let i = x; i <= Number.parseFloat(this.xLimit+h); i+=h) {
         data.push({
           'x': Math.round(i*100,2)/100,
           'y': fn.call(this, i, 0),
@@ -634,6 +649,7 @@ button:hover {
     display: grid;
     justify-content: center;
     background-color: #dbd9d3;
+    margin-top: 2em;
   }
 
   #app {
@@ -649,6 +665,7 @@ button:hover {
   }
   h1 {
     grid-column: 1 / span 2;
+    margin: 2em 0;
   }
   #chart_display {
     grid-column-start: 2;
@@ -659,7 +676,7 @@ button:hover {
     grid-column-start: 1;
     grid-row-start: 2;
     margin-right: 1em;
-    min-width: 15em;
+    min-width: 16em;
   }
 
   #data_table {
