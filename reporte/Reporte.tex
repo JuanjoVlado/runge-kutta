@@ -2,8 +2,7 @@
 \usepackage{hyperref}         %Use hyperref package (for hyperlinks)
 \usepackage{graphicx}         %Use graphicx package (for images)
 \usepackage{float}            %Use float package (allows you to place images more easily)
-
-\usepackage{gensymb}          %Use gensymb package (generic symbols)
+%\usepackage{gensymb}          %Use gensymb package (generic symbols)
 \usepackage{amsmath}          %Use amsmath package (for optimized math formulas)
 \usepackage{tikz}             %Use tikz package (for creating graphics)
 \usepackage{pgfplots}         %Use pgfplots package (for creating graphics)
@@ -25,7 +24,7 @@
 % use a multiple column layout for up to three different
 % affiliations
 \author{
-	\IEEEauthorblockN{Juan José Rivera Román - 20002802}
+	\IEEEauthorblockN{Juan José Rivera Román - 20002802\\Mario Esteban Ponce Contreras - 21000508}
 	\IEEEauthorblockA{\\Universidad Galileo\\Guatemala, Guatemala }
 }
 
@@ -34,70 +33,107 @@
 
 % As a general rule, do not put math, special symbols or citations in the abstract
 \begin{abstract}
-Uno Esta secci\'on es un breve resumen de los aspectos m\'as importantes del reporte. Se incluye el pr\'oposito del laboratorio, los hallazgos m\'as importantes y la conclusi\'on principal.
+Al momento de trabajar con ecuaciones diferenciales de primer orden, no siempre es posible expresar la solución de manera explícita o ímplicita, aun cuando sea posible demostrar que dicha solución existe. En esos casos, una forma de expresar la solución a una ecuacion diferencial es por medio de algún método numérico. En este proyecto se estudia y aplica el método de Runge-Kutta, uno de los métodos numéricos más precisos.
 \end{abstract}
 
 \section{Introducci\'on}
-En esta secci\'on se establece el objetivo del laboratorio. La introducci\'on debe incluir la siguiente informaci\'on:
-\begin{itemize}
-	\item Contexto de aprendizaje del laboratorio.
-	\item Los objetivo principales.
-	\item Hip\'otesis que se desea confirmar o rechazar,debe incluir el razonamiento.
-\end{itemize}
- 
+En este proyecto se pone en práctica lo aprendido en el curso de ecuaciones diferenciales ordinarias, los distintos tipos de métodos para encontrar las soluciones generales y particulares, además, se explorará el método de aproximación de Runge-Kutta que permite aproximar la solución a una ecuación diferencial de primer orden con valores iniciales $y\prime=f(x, y), y(x_o)=y_o$.
+
+El objetivo principal del proyecto es entender y aplicar el método de aproximación de Runge-Kutta, comparar los resultados con el método analítico estudiado en clase y comprobar la presición del método para la resolución de ecuaciones diferenciales dados ciertos valores iniciales.
+
 \section{Procedimiento}
-Un breve resumen del procedimiento utilizado en la pr\'actica.
+Se inició la práctica investigando en distintas fuentes el método de Runge-Kutta, cómo utilizarlo y las condiciones que deben cumplir para aplicar el método. Luego se procedió a abstraer el método en código de programación para facilitar la realización pruebas que permitan validar el correcto funcionamiento del algoritmo aplicado. Finalmente, se diseñó e implementó una interfaz de usuario para que cualquier usuario pueda hacer uso del algoritmo sin conocimiento previo en programación.
 
 \subsection{Materiales}
-Materiales utilizados f\'isico o digital
 \begin{itemize}       							%Creating an unordered list
-\item Computadora modelo, hardware relevante de la computadora que fue necesario para la implementaci\'on
-\item Software
-\item Base de datos [referencia]
+\item Computadora con Visual Studio Code y procesador de 1.80GHz mínimo.
+\item Software: Nodejs, npm y Vue-cli.
 \end{itemize}
 
-\subsection{Diagrama de configuraci\'on del laboratorio}
-Incluye diagrama de la configuraci\'on o la forma en que se elaboro el experimento. Por ejemplo, la configuraci\'on en la que se conecto el equipo con el que se hizo alguna medici\'on. 
+\subsection{Diagrama de flujo del proyecto}
 
 \begin{figure}[H]									%Creating a figure with caption
 \centering
-\includegraphics[scale=0.7]{conf}%Inserting graphic file (in same directory)
-\caption{Ejemplo de la configuraci\'on de un Sistema}\label{diagram1}  %Captioning the graphic file
+\includegraphics[scale=0.2]{flujoDeProyecto}%Inserting graphic file (in same directory)
+\caption{Diagráma de flujo del proyecto}\label{diagram1}  %Captioning the graphic file
 \end{figure}
 
 \subsection{Pasos del procedimiento}        		
-Se enumeran los pasos realizados para obtener los resultados. 
+Siguiendo el algoritmo de aproximación del método de Runge-Kutta:
 \begin{enumerate}						%Creating an ordered list
-	\item Paso 1
-	\item Paso 2
-	\item Paso 3
+	\item Se definen la ecuación $y\prime=f(x, y)$ y sus valores iniciales $x_o$  y $y(x_o)$ además de definir el tamaño del paso $h$ entre $x_n$ y $x_{n-1}$
+	\item Dependiendo del orden del método a utilizar, se calcula determinado número de términos que forman parte del promedio ponderado con el que se forma el polinomio de Taylor que se utiliza para aproximar la solución.
 \end{enumerate}
 
-\section {Resultados}
-Esta secci\'on incluye \'unicamente los resultados obtenidos. Estos se pueden presentar en forma de tablas o gr\'aficas dependiendo del tipo de informaci\'on que se obtenga.
+\vspace{1em}
 
-\subsection{Tabla de datos}
+Para el métdo de primer orden:
+\begin{equation}
+	y_{n+1}=y_n+hf(x_n, y_n)
+\end{equation}
+
+Para el método de segundo orden:
+\begin{equation}
+y_{n+1}=y_n+\frac{h}{2}(k_1+k_2)
+\end{equation}
+
+Donde:
+\begin{gather*}
+k_1=f(x_n,y_n)\notag\\
+k_2=f(x_n+h,y_n+hk_1)
+\end{gather*}
+
+Para el método de cuarto orden: 
+\begin{equation}
+y_{n+1}=y_n+\frac{h}{6}(k_1+2k_2+2k_3+k_4)
+\end{equation}
+
+Donde:
+\begin{gather*}
+k_1=f(x_n, y_n)\notag\\
+k_2=f(x_n+\frac{1}{2}h, y_n+\frac{1}{2}hk_1)\\
+k_3=f(x_n+\frac{1}{2}h, y_n+\frac{1}{2}hk_2)\\
+k_4=f(x_n+h, y_n+hk_3)
+\end{gather*}
+
+Finalmente, se compararon los resultados obtenidos por medio del método analítico con los resultados obtenidos por medio del método de Runge-Kutta de diferente orden. En general, la aproximación es mucho mejor al aumentar el grado del método, y gráficamente, es mucho más fácil apreciar la presición del la aproximación en cuanto menor sea el paso $h$ entre cada iteración.
+
+\section {Resultados}
+\subsection{Prueba 1}
 \begin{table}[H]
 \centering
-\caption{Ejemplo de Tabla con datos}
+\caption{Datos para la prueba 1}
 \label{DataTable1}
 \begin{tabular}{|c|c|}
 \hline
-Diameter (cm) & Circumference (cm) \\
+Variable & Valor inicial \\
 \hline
-11.7 & 37.8\\
-17.1 & 54\\  
-8.4 & 26.6\\
-6.6 & 21.2\\
-7.4 & 23.4\\
-6.6 & 21.2\\
-7.9 & 25.6\\
-15.8 & 50.6\\
-8.8 & 28.5\\
-1.9 & 7\\
+EDO & $y\prime=x+1-y$\\
+h & 0.25\\  
+$y(0)$ & 0\\
+x & 1\\
+Solución & $y(x)=x$\\
 \hline   
 \end{tabular}
 \end{table}
+
+\begin{table}[H]
+\centering
+\caption{Resultados de la prueba 1}
+\label{DataTable2}
+\begin{tabular}{|c|c|c|c|c|c|}
+\hline
+$x_n$ & $k_1$ & $k_2$ & $y_n$ & Valor real & \% de error \\
+\hline
+0.00 & 0.0000 & 0.0000 & 0.0000 & 0.0000 & 0.00\%\\
+0.25 & 1.2500 & 1.1875 & 0.3046 & 0.2500 & 21.88\%\\
+0.50 & 1.0265 & 1.2356&1.2356 & 1.4567 & 1.8946\\
+0.75 & 1.0265 & 1.2356&1.2356 & 1.4567 & 1.8946\\
+1.00 & 1.0265 & 1.2356&1.2356 & 1.4567 & 1.8946\\
+\hline   
+\end{tabular}
+\end{table}
+
 \newpage
 
 \subsection{Graficas}
