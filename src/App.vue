@@ -367,11 +367,10 @@ export default {
      */
     functionBuilder(mathExpression) {
       this.mathExpression = mathExpression;
-      
       let fn = function(x, y) {
         let exp = this.mathExpression;
         x = Math.round(x*100, 2)/100;
-
+        
         exp = exp.replace(/x/g, x);
         exp = exp.replace(/y/g, y);
         exp = exp.replace(/PI/ig, Math.PI.toString());
@@ -381,6 +380,7 @@ export default {
         exp = exp.replace(/exp/g, Math.exp(1));
         exp = exp.replace(/PI/ig, Math.PI.toString());
         exp = exp.replace(/ln/g, 'log');
+
         return this.operateExpression(exp);
       };
 
@@ -398,6 +398,7 @@ export default {
      * the Runge-Kutta algorithm.
      */
      getValues(fn, h, xi, yi) {
+      console.log(h, xi, yi)
       let steps = [{
         'k1': yi,
         'k2': yi,
@@ -410,7 +411,7 @@ export default {
       let step = xi;
       let limit = Number.parseFloat(this.xLimit);
       h = Math.round(Number.parseFloat(h)*100,2)/100;
-      xi = Math.round(Number.parseFloat(xi+h)*100, 2)/100;
+      xi = Math.round(Number.parseFloat(xi)*100, 2)/100;
       yi = Number.parseFloat(yi);
       let rk_fn = this.runge_kutta_k1;
 
@@ -426,7 +427,7 @@ export default {
       while(step <= limit) {
         let res = rk_fn.call(this, fn, h, xi, yi);
         yi = res.y;
-        res.x = Math.round(xi*100, 2)/100;
+        res.x = Math.round((xi+h)*100, 2)/100;
         res.key = step;
         steps.push(res)
         xi += Math.round(h*100,2)/100;
