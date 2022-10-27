@@ -104,6 +104,26 @@
                 usePointStyle: true
               }
             }
+          },
+          scales: {
+            y: {
+              title: {
+                display: true,
+                text: 'y(x)',
+                font: {
+                  size: 20
+                }
+              }
+            },
+            x: {
+              title: {
+                display: true,
+                text: 'x',
+                font: {
+                  size: 20
+                }
+              }
+            }
           }
         }
       }
