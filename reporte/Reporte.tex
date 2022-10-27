@@ -205,10 +205,56 @@ g=32\frac{pies}{s^2}
 
 Se puede modelar como:
 \begin{equation}
-v\prime-\frac{k}{m}v^2=g
+v\prime=g-\frac{k}{m}v^2
+\end{equation}
+
+Utilizando el método de Runge-Kutta de cuarto orden con $h=1$, se calcula la velocidad del cuerpo pasados 5 segundos:
+
+\begin{table}[H]
+\centering
+\caption{Resultados de la prueba 3}
+\label{DataTable3}
+\begin{tabular}{|c|c|c|c|c|c|c|}
+\hline
+$x_n$ & $k_1$ & $k_2$ & $k_3$ & $k_4$ & $y_n$ \\
+\hline
+1.00 & 31.9750 & 24.7856 & 27.5158 & 11.6712 & 25.7081\\
+2.00 & 15.4772 & 4.0327 & 12.7836 & -5.0406 & 33.0531\\
+3.00 & 4.6872 & 0.6767 & 4.1252 & -2.5557 & 35.0090\\
+4.00 & 1.3591 & 0.1580 & 1.2207 & -0.8148 & 35.5593\\
+5.00 & 0.3883 & 0.0421 & 0.3508 & -0.2385 & 35.7153\\
+\hline   
+\end{tabular}
+\end{table}
+
+Utilizando la solución analítica:
+\begin{equation}
+y(x)=\frac{16\sqrt5(e^{4x/\sqrt5}-1)}{e^{4x/\sqrt5}+1}
 \end{equation}
 \newpage
 
+\begin{table}[H]
+\centering
+\caption{Comparación de Resultados de la prueba 3}
+\label{DataTable4}
+\begin{tabular}{|c|c|c|c|}
+\hline
+$x_n$ & $y_n$ & Valor real & \% de error \\
+\hline
+1.00 & 25.7081 & 25.5295 & 0.70\%\\
+2.00 & 33.0531 & 33.8322 & 2.30\%\\
+3.00 & 35.0090 & 35.4444 & 1.23\%\\
+4.00 & 35.5593 & 35.7212 & 0.45\%\\
+5.00 & 35.7153 & 35.7677 & 0.15\%\\
+\hline   
+\end{tabular}
+\end{table}
+
+\begin{figure}[H]									%Creating a figure with caption
+\centering
+\includegraphics[scale=0.35]{graficaPrueba3}%Inserting graphic file (in same directory)
+\caption{Comparación gráfica de la solución analítica y la aproximación RK4}\label{diagram4}  %Captioning the graphic file
+\end{figure}
 
 \section{Discusi\'on / An\'alisis}
 Tanto en la Prueba 1 como en la Prueba 2, los valores apróximados por el método de Runge-Kutta se acercaron significativamente a los valores calculados de manera analítica, esto se hace aún más evidente al observar las gráficas, tanto la gráfica de la solución exácta como la gráfica de la aproximación por el método de Runge-Kutta se superponen, dejando en claro que sus valores son casi idénticos.
@@ -217,6 +263,7 @@ Tanto en la Prueba 1 como en la Prueba 2, los valores apróximados por el métod
 En el caso de la prueba 2, a pesar de que el porcentaje de error fue mayor, este es aun menor al 0.2\%, lo que lo hace una aproximación lo suficientemente exácta para la mayoría de aplicaciones.
 \vspace{1em}
 
+Para la prueba 3, la diferencia entre la velocidad en $t=5s$ calculada analíticamente y el valor aproximado con el método de Runge-Kutta es significativamente pequeña, lo que confirma la utilidad del método en aplicaciones reales y especialmente para ecuaciones diferenciales con soluciones tan complejas de obtener y expresar de manera analítica como la de la prueba 3.
 
 \section{Conclusi\'on}
 Es importante ser capaces de identificar y resolver ecuaciones diferenciales, puesto que su aplicación en el mundo real es amplia. Sin embargo, que una equación diferencial tenga una o varias soluciones, no significa necesariamente que esta pueda ser expresada de forma explícita o implícita, para estos casos en donde la solución no puede expresarse de manera simple el método de aproximación de Runge-Kutta resulta muy útil. Aun si se aplica el método de primer orden, las aproximaciones son más exáctas que con otros métodos numéricos y su implementación es relativamente sencilla, especialmente si se utiliza el recurso computacional para facilitar y acelerar el calculo de todos los datos del rango que se desea.
